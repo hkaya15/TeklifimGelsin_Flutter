@@ -7,5 +7,4 @@ GetIt locator = GetIt.instance;
 void setupLocator() {
   locator.registerLazySingleton(() => API());
   locator.registerLazySingleton(() => GetOfferRepo());
-  
 }

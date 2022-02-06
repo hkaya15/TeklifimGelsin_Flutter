@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_collection_literals
+
 class BankModel {
   int? bankId;
   String? bank;
@@ -23,29 +25,30 @@ class BankModel {
   BankModel.fromJson(Map<String, dynamic> json) {
     bankId = json['bank_id'];
     bank = json['bank'];
-    interestRate = json['interest_rate'];
-    sponsoredRate = json['sponsored_rate'];
+    interestRate = json['interest_rate'].toDouble();
+    sponsoredRate =json['sponsored_rate'].toDouble();
     bankType = json['bank_type'];
     url = json['url'];
-    hypothecFee = json['hypothec_fee'];
-    expertise = json['expertise'];
-    annualRate = json['annual_rate'];
+    hypothecFee = json['hypothec_fee'].toDouble();
+    expertise = json['expertise'].toDouble();
+    annualRate = json['annual_rate'].toDouble();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['bank_id'] = this.bankId;
-    data['bank'] = this.bank;
-    data['interest_rate'] = this.interestRate;
-    data['sponsored_rate'] = this.sponsoredRate;
-    data['bank_type'] = this.bankType;
-    data['url'] = this.url;
-    data['hypothec_fee'] = this.hypothecFee;
-    data['expertise'] = this.expertise;
-    data['annual_rate'] = this.annualRate;
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['bank_id'] = bankId;
+    data['bank'] = bank;
+    data['interest_rate'] = interestRate;
+    data['sponsored_rate'] = sponsoredRate;
+    data['bank_type'] = bankType;
+    data['url'] = url;
+    data['hypothec_fee'] = hypothecFee;
+    data['expertise'] = expertise;
+    data['annual_rate'] = annualRate;
     return data;
   }
-   @override
+
+  @override
   String toString() {
     return 'BankModel{ bank_id:$bankId,bank:$bank,interest_rate:$interestRate,url: $url, annual_rate: $annualRate}';
   }

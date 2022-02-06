@@ -11,8 +11,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -20,15 +18,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => OfferViewModel()),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Teklifim Gelsin',
-        theme: ThemeData(
-          primarySwatch: Colors.cyan,
-        ),
-        home: const GetOffer()
-      ),
+          debugShowCheckedModeBanner: false,
+          title: 'Teklifim Gelsin',
+          theme: ThemeData(
+            primarySwatch: Colors.cyan,
+          ),
+          home: const GetOffer()),
     );
   }
 }
-
-

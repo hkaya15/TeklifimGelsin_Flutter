@@ -1,6 +1,5 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, prefer_void_to_null, unnecessary_question_mark, prefer_collection_literals
 
-import 'package:flutter/cupertino.dart';
 import 'package:teklifimgelsin/ui/GetOffer/model/bankmodel.dart';
 
 class OfferModel {
@@ -37,26 +36,27 @@ class OfferModel {
     if (json['offers'] != null) {
       offers = <BankModel>[];
       json['offers'].forEach((v) {
-        offers!.add(new BankModel.fromJson(v));
+        offers!.add(BankModel.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['amount'] = this.amount;
-    data['created_at'] = this.createdAt;
-    data['client_id'] = this.clientId;
-    data['type'] = this.type;
-    data['maturity'] = this.maturity;
-    data['carCondition'] = this.carCondition;
-    data['total_offers'] = this.totalOffers;
-    if (this.offers != null) {
-      data['offers'] = this.offers!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['id'] = id;
+    data['amount'] = amount;
+    data['created_at'] = createdAt;
+    data['client_id'] = clientId;
+    data['type'] = type;
+    data['maturity'] = maturity;
+    data['carCondition'] = carCondition;
+    data['total_offers'] = totalOffers;
+    if (offers != null) {
+      data['offers'] = offers!.map((v) => v.toJson()).toList();
     }
     return data;
   }
+
   @override
   String toString() {
     return 'OfferModel{ id:$id,amount:$amount,maturity:$maturity,total_offers: $totalOffers, offers: $offers}';
