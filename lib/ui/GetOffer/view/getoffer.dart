@@ -3,8 +3,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
+
 import 'package:teklifimgelsin/ui/GetOffer/viewmodel/getoffer_viewmodel.dart';
 
 class GetOffer extends StatelessWidget {
@@ -14,22 +14,21 @@ class GetOffer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size=MediaQuery.of(context).size;
     return Consumer<OfferViewModel>(builder: (context, viewmodel, child) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(title: Text("Teklifim Gelsin!"), centerTitle: true,),
         body: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: viewmodel.flip,
-              child: TweenAnimationBuilder(
+          TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0, end: viewmodel.angle),
                   duration: Duration(seconds: 1),
                   builder: (BuildContext context, double value, __) {
-                    Future.delayed(Duration(milliseconds: 10),(){
-                      value>=(pi/2) ? viewmodel.setChecked(false) : viewmodel.setChecked(true);
-                    });
+                    // Future.delayed(Duration(milliseconds: 10),(){
+                    //   value>=(pi/2) ? viewmodel.setChecked(false) : viewmodel.setChecked(true);
+                    // });
                     
                     return (Transform(
                       alignment: Alignment.center,
@@ -37,15 +36,16 @@ class GetOffer extends StatelessWidget {
                         ..setEntry(3, 2, 0.001)
                         ..rotateY(value),
                       child: SizedBox(
-                        width: 309,
-                        height: 474,
+                        width: 350,
+                        height: 534,
                         child: viewmodel.isChecked
                             ? Material(
                               type: MaterialType.transparency,
                               child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.red,
+                                    color: Colors.white70,
                                     borderRadius: BorderRadius.circular(10.0),
+                                   border: Border.all(width: 1, color: Colors.black),
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -146,7 +146,7 @@ class GetOffer extends StatelessWidget {
   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
     RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12.0),
-      side: BorderSide(color: Colors.red)
+     
     )
   )
 ),
@@ -157,8 +157,41 @@ class GetOffer extends StatelessWidget {
               var maturity=viewmodel.maturity.toInt();
                final _getOfferViewModel =
                   Provider.of<OfferViewModel>(context, listen: false);
-                 var x= await _getOfferViewModel.getOffer(amount, maturity);
-                 print(x);
+                  if(amount>50000 && maturity>=25){
+                    showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Center(child: Text("Teklif Bulunamadı")),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Bankacılık Düzenleme ve Denetleme Kurumu(BDDK), 04.09.2020 tarihli kurul kararı ile 50.000 TL üzeri tüketici kredilerinde vade sınırını 36 aydan 24 aya indirmiştir. Lütfen aramanızı güncelleyin.'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Tamam'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+                  }else{
+                    var x= await _getOfferViewModel.getOffer(amount, maturity).then((a){
+                   if (a.offers!=null){
+                   //  print(a);
+                     viewmodel.flip();
+                   }
+                 });
+                  }
+                 
+                 
             },
             child: const Text('TeklifimGelsin'),
           ),
@@ -167,33 +200,212 @@ class GetOffer extends StatelessWidget {
                                   ],)
                                 ),
                             )
-                            : Transform(
+                            : viewmodel.offerModel!=null ? Transform(
                               alignment: Alignment.center,
                               transform: Matrix4.identity()..rotateY(pi),
                               child: Material(
                                 type: MaterialType.transparency,
                                 child: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.yellow,
+                                      color: Colors.white70,
                                       borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(width: 1, color: Colors.black),
                                     ),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(top:18.0),
+                                        child: Center(child: Text(viewmodel.offerModel.maturity.toString() +" ay vadeli "+viewmodel.offerModel.amount.toString()+"₺ için"),),
+                                      ),
+                                     ListView.builder(
+                                       key: viewmodel.key,
+                                  controller:
+                                      viewmodel.scrollController,
+                                      itemCount: 3,
+                                  shrinkWrap: true,
+                                       itemBuilder: (context, index){
+                                         return GestureDetector(
+                                           onTap: (){
+                                            showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Center(child: Text(viewmodel.offerModel.offers![index].bank.toString())),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Yıllık Faiz Oranı: '+ viewmodel.offerModel.offers![index].annualRate!.toStringAsFixed(2)),
+              Text('Aylık Faiz Oranı: '+ viewmodel.offerModel.offers![index].interestRate!.toStringAsFixed(2)),
+              Text('Miktar: '+ viewmodel.offerModel.amount.toString()),
+              Text('Vade: '+ viewmodel.offerModel.maturity.toString()),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Tamam'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+    
+  
+                                           },
+                                          child: ListTile(
+                                            tileColor: Colors.transparent,
+                                  contentPadding: EdgeInsets.all(8.0),
+                                  horizontalTitleGap: 10.0,
+                                      
+                                      title: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                            Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Icon(Icons.monetization_on),
+                                      ),
+                                        Center(child: Text(viewmodel.offerModel.offers![index].bank.toString())),
+                                    
+                                      ]
+                                          ),
+                                          subtitle: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                            Container(child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Text("Oran"),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top:12.0),
+                                                  child: Text("%${viewmodel.offerModel.offers![index].interestRate}"),
+                                                )
+                                              ],
+                                            ),),
+                                            Container(child: Column(
+                                               mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Text("Maliyet"),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top:12.0),
+                                                  child: Text("₺${viewmodel.calculateMonthlyPayment(viewmodel.offerModel.offers![index].interestRate, viewmodel.offerModel)*36}"),
+                                                )
+                                              ],
+                                            ),),
+                                            Container(child: Column(
+                                               mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Text("Aylık Taksit"),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top:12.0),
+                                                  child: Text("₺${viewmodel.calculateMonthlyPayment(viewmodel.offerModel.offers![index].interestRate, viewmodel.offerModel)}"),
+                                                ),
+                                              ],
+                                            ),),
+                                          ],),
+                                         ) );
+                                       } ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+              margin: EdgeInsets.only(top:10),
+              height: 30.0,
+              width: 320.0,
+              child:ElevatedButton(
+            style:  ButtonStyle(
+  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+    RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12.0),
+      
+    )
+  )
+),
+            onPressed: () async{
+        
+                 
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Size Özel ${viewmodel.offerModel.totalOffers} farklı teklimiz daha var'),
+                 Icon(Icons.arrow_right),
+                
+              ],
+            ),
+          ),
+            ),
+                                        ),
+
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          children: [
+                                          Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+              margin: EdgeInsets.only(top:10),
+              height: 30.0,
+              child:ElevatedButton(
+            style:  ButtonStyle(
+  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+    RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12.0),
+     
+    )
+  )
+),
+            onPressed: () async{
+        
+                 viewmodel.flip();
+            },
+            child: 
+                Text('Geri'),
+                
+                
+            
+          ),
+            ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+              margin: EdgeInsets.only(top:10),
+              height: 30.0,
+              child:ElevatedButton(
+            style:  ButtonStyle(
+  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+    RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12.0),
+     
+    )
+  )
+),
+            onPressed: () async{
+        
+                 
+            },
+            child: 
+                Text('Devam Et'),
+                
+                
+            
+          ),
+            ),
+                                        )
+                                        ],)
+                                    ],),
                                   ),
                               ),
-                            ),
+                            ) : null,
                       ),
                     ));
                   }),
-            )
+            
           ],
         )),
-        floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.green,
-            child: const Icon(Icons.navigation),
-            onPressed: () {
-              final _getOfferViewModel =
-                  Provider.of<OfferViewModel>(context, listen: false);
-             // _getOfferViewModel.getOffer();
-            }),
       );
     });
   }
